@@ -1,0 +1,33 @@
+{
+  "name": "forageat",
+  "version": "1.0.0",
+  "description": "Based on recipes input and serving size, users can see the breakdown of nutritional facts. \r It uses D3, NodeJS, Express, and MySQL.",
+  "main": "server.js",
+  "scripts": {
+    "test": "mocha",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/quangthuyhoang/forageater.git"
+  },
+  "author": "Quang-Thuy Hoang",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/quangthuyhoang/forageater/issues"
+  },
+  "homepage": "https://github.com/quangthuyhoang/forageater#readme",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "dotenv": "^5.0.1",
+    "ejs": "^2.5.9",
+    "express": "^4.16.3",
+    "mocha": "^5.1.1",
+    "node-fetch": "^2.1.2",
+    "nodemon": "^1.17.3",
+    "request": "^2.85.0"
+  },
+  "devDependencies": {
+    "chai": "^4.1.2"
+  }
+}
