@@ -2,11 +2,9 @@
 request = require('request');
 // food, sort, max, offset, apikey
 
-var x = {
-    "sort": "n",
-    "max" : 12,
-    "offset" : 3
-}
+// *** API  ***
+
+// Request handler
 function ndbOption(key, sort, max, offset, format) {
     var self = this;
     self.ndbAPIkey = key || 'DEMO_KEY';
@@ -36,8 +34,7 @@ function getNDBUrl(query) {
 }
 
 function getNutrientURL(ndbno) {
-    var opt = new ndbOption();
-    return 'https://api.nal.usda.gov/ndb/V2/reports?ndbno=' + ndbno + '&type=f&format=json&api_key=' + opt.ndbAPIkey;
+    return 'https://api.nal.usda.gov/ndb/V2/reports?ndbno=' + ndbno;
 }
 
 var option = {
@@ -45,50 +42,45 @@ var option = {
 }
 
 function getAPIrequest(url, option = {type: ''}) {
-    var opt = new ndbOption()
+    var opt = new ndbOption(option.ndbAPIkey, option.sort, option.max, option.offset)
+ 
     if(option.type = 'query') {
-        opt = new ndbOption(option.ndbAPIkey, option.sort, option.max, option.offset)
         return url + '&sort=' + opt.sort + '&max=' + opt.max + '&offset=' + opt.offset +'&api_key=' + opt.ndbAPIkey;
     }
-    op
-    return 'https://api.nal.usda.gov/ndb/V2/reports?ndbno=' + ndbno + '&type=f&format=json&api_key=' + opt.ndbAPIkey;
+    
+    return url + '&type=f&format=json&api_key=' + opt.ndbAPIkey;
+}
+
+// RESPONSE HANDLER
+
+function checkAPILimit(response) {
+    const remain = response.headers['x-ratelimit-remaining'];
+    const limit = response.headers['x-ratelimit-limit'];
+    return {count: remain, limit: limit}
 }
 
 function apiParser(error, response, body) {
     if(error) {
         throw Error('apiParser: response Error')
     }
+    if(reponse.statusCode === 429) {
+        var rate = checkAPILimit(response)
+        return {error: response.statusCode, errorMessage: rate.remain + ' remaining out of ' + rate.limit}
+    }
     if(response.statusCode === 200 && body) {
         var result = JSON.parse(response.body);
     }
 }
 
-module.exports = {
-    requestNDB: function(query, option) {
-        // check if string or convert to string
-        console.log("query", query, "option", option)
-        if(!query) {
-            throw Error('Search term was false: server.httpRequest.js')
-        }
-        var food = query.split(' ').join('%20').toLowerCase();
-        if(typeof food !== 'string') {
-            food.tostring();
-        }
-    
-        var opt = new ndbOption();
-        if(option) {
-            opt = new ndbOption(option.ndbAPIkey, option.sort, option.max, option.offset)
-        }
-    
-        return 'https://api.nal.usda.gov/ndb/search/?format=json&q=' + food + '&sort=' + opt.sort + '&max=' + opt.max + '&offset=' + opt.offset +'&api_key=' + opt.ndbAPIkey;
-    },
+// 
 
-    // var nutrientURL = 'https://api.nal.usda.gov/ndb/V2/reports?ndbno=' + ndbList[0].ndbno + '&type=f&format=json&api_key=' + process.env.ndbAPIkey
+// ERROR HANDLER
+// need to add
+
+module.exports = {
+    requestNDB: getNDBUrl,
  
-    getNutrientURL: function(ndbno) {
-        var opt = new ndbOption();
-        return 'https://api.nal.usda.gov/ndb/V2/reports?ndbno=' + ndbno + '&type=f&format=json&api_key=' + opt.ndbAPIkey;
-    },
+    getNutrientURL: getNutrientURL,
 
     getAPIrequest: getAPIrequest,
 
@@ -106,7 +98,9 @@ module.exports = {
                 res.render('show', {product: food})
             }
         })
-    }
+    },
+    // rate limit check
+    checkAPILimit: checkAPILimit,
     
 }
 
