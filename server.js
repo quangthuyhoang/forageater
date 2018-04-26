@@ -24,8 +24,32 @@ app.get('/main/isedible', (req, res) => {
     res.sendFile(process.cwd() + '/views/recipeinput.html')
 })
 
+app.get('/main/isedible/:id/nutrition', (req, res) => {
+    console.log(req.params.id)
+    var url = http.getAPIrequest(http.getNutrientURL(req.params.id))
+    request.get({url: url}, (err, response, body) => {
+        if(!err && response.statusCode === 200 && body) {
+             // organize nutrient
+             var result = JSON.parse(response.body)
+             var product = result.foods[0].food
+             var d = {
+                 label: product.desc,
+                 ing: product.ing,
+                 nutrients: product.nutrients
+             }
+            
+
+             // send nutrient data and redirect to get request
+             console.log(d)
+             res.render('show', {food: d})
+            //  res.end(JSON.stringify({label: label, ing: ingredients, nutrients: nutrients}))
+        }
+    })
+
+})
+
 app.get('/main/isedible/nutrition', (req, res) => {
-    console.log("req" ,req.query, req.params)
+    console.log("req" ,req.query, req.params, req.body)
     var foodGroup = req.query;
     const option = {
         ndbAPIkey: process.env.ndbAPIkey
@@ -34,14 +58,36 @@ app.get('/main/isedible/nutrition', (req, res) => {
     request.get({url: url}, function(err, response, body) {
         if(!err && response.statusCode === 200) {
             
-            // console.log(body)
-            var data;
-            if(body.list) {
-                data = body;
-       
-            }
+            var data = JSON.parse(body)
+            var ndbList = data.list.item.map((brand) => {
+                // separate name from UPC code
+                var name = brand.name.split(", UPC:")[0]
+                var upc = brand.name.split(", UPC:")[1]
+                return { name: name, ndbno: brand.ndbno, upc: upc }
+            })
             
-            res.send(body)
+             // use NDB number to look up nutrition
+             var nutrientURL = 'https://api.nal.usda.gov/ndb/V2/reports?ndbno=' + ndbList[0].ndbno + '&type=f&format=json&api_key=' + process.env.ndbAPIkey
+             request.get({url: nutrientURL}, function(err, response, body) {
+                 if(err) {
+                     console.log(err)
+                 }
+                 if(response.statusCode === 200 && body) {
+                     console.log("Nutrient Report API has responded:", response.statusCode);
+
+                     // organize nutrient
+                     var result = JSON.parse(response.body)
+                     var product = result.foods[0].food
+                     var label = product.desc;
+                     var ingredients = product.ing;
+                     var nutrients = product.nutrients;
+
+                     // send nutrient data and redirect to get request
+                     res.render('show', {product: product})
+                    //  res.end(JSON.stringify({label: label, ing: ingredients, nutrients: nutrients}))
+                 }
+             })
+            
         }
     }) 
     
@@ -75,6 +121,8 @@ app.post('/main/isedible/nutrition', (req, res) => {
                     var upc = brand.name.split(", UPC:")[1]
                     return { name: name, ndbno: brand.ndbno, upc: upc }
                 })
+
+                res.redirect('/main/isedible/' + ndbList[0].ndbno+ '/nutrition')
 
                 // use NDB number to look up nutrition
                 var nutrientURL = 'https://api.nal.usda.gov/ndb/V2/reports?ndbno=' + ndbList[0].ndbno + '&type=f&format=json&api_key=' + process.env.ndbAPIkey
