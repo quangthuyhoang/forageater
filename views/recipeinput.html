@@ -6,7 +6,7 @@
         <title>FORAGEATER</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
+        
         <link rel="manifest" href="site.webmanifest">
         <link rel="apple-touch-icon" href="icon.png">
         <!-- Place favicon.ico in the root directory -->
@@ -20,7 +20,12 @@
         <![endif]-->
         
         <!-- Add your site or application content here -->
-        <p>Hello world! This is HTML5 Boilerplate.</p>
+        <h3>Recipe/Meal Input Page</h3>
+        <div>
+            <label for="itemSearch">Look up:</label>
+            <input id="itemSearch" type='text' />
+            <input id="itemSearchSubmit" type="button" value="search"/>
+        </div>
         <div class="recipeInput">
             <form action="/main/isedible/nutrition"  method="POST" name="meal">
                 <ul>
@@ -50,17 +55,23 @@
             </form>
         </div>
         
-        <script src="js/vendor/modernizr-{{MODERNIZR_VERSION}}.min.js"></script>
-        <script src="https://code.jquery.com/jquery-{{JQUERY_VERSION}}.min.js" integrity="{{JQUERY_SRI_HASH}}" crossorigin="anonymous"></script>
-        <script>window.jQuery || document.write('<script src="js/vendor/jquery-{{JQUERY_VERSION}}.min.js"><\/script>')</script>
-        <script src="js/plugins.js"></script>
-        <script src="js/main.js"></script>
-
+       
+        <script type="text/javascript" src="/controllers/client.recipeInput.js" ></script>
         <!-- Google Analytics: change UA-XXXXX-Y to be your site's ID. -->
         <script>
-            window.ga=function(){ga.q.push(arguments)};ga.q=[];ga.l=+new Date;
-            ga('create','UA-XXXXX-Y','auto');ga('send','pageview')
+           var searchItem = document.querySelector('#itemSearch')
+           var searchSubmit = document.querySelector('#itemSearchSubmit');
+           console.log(searchSubmit)
+           searchItem.onchange = function(e) {
+               queryNDBNo(e.target.value)
+               this.value = "";
+           }
+           searchSubmit.onclick = function(e) {
+               console.log(e.target.value)
+            //    clean input variable
+           }
         </script>
+        <script src="/controllers/script.js" type="text/javascript"></script>
         <script src="https://www.google-analytics.com/analytics.js" async defer></script>
     </body>
 </html>

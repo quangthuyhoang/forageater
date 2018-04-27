@@ -53,43 +53,30 @@ app.get('/main/isedible/:id/nutrition', (req, res) => {
 
 })
 
-app.get('/main/isedible/nutrition', (req, res) => {
+app.get('/api/search/:query', (req, res) => {
     console.log("req" ,req.query, req.params, req.body)
-    var foodGroup = req.query;
-    const url = http.requestNDB(foodGroup['item-1'], option);
-    request.get({url: url}, function(err, response, body) {
+    var foodGroup = req.params.query;
+
+    const url = http.requestNDB(foodGroup);
+    option.type = 'query';
+   
+    request.get({url: http.getAPIrequest(http.requestNDB(foodGroup), option)}, function(err, response, body) {
+        if(err) {
+            console.log(err)
+        }
+        if(response.statusCode === 200 && body.errors) {
+            res.json({errors: body.errors.error})
+        }
         if(!err && response.statusCode === 200) {
-            
             var data = JSON.parse(body)
-            var ndbList = data.list.item.map((brand) => {
-                // separate name from UPC code
-                var name = brand.name.split(", UPC:")[0]
-                var upc = brand.name.split(", UPC:")[1]
-                return { name: name, ndbno: brand.ndbno, upc: upc }
-            })
-            
-             // use NDB number to look up nutrition
-             var nutrientURL = 'https://api.nal.usda.gov/ndb/V2/reports?ndbno=' + ndbList[0].ndbno + '&type=f&format=json&api_key=' + process.env.ndbAPIkey
-             request.get({url: nutrientURL}, function(err, response, body) {
-                 if(err) {
-                     console.log(err)
-                 }
-                 if(response.statusCode === 200 && body) {
-                     console.log("Nutrient Report API has responded:", response.statusCode);
 
-                     // organize nutrient
-                     var result = JSON.parse(response.body)
-                     var product = result.foods[0].food
-                     var label = product.desc;
-                     var ingredients = product.ing;
-                     var nutrients = product.nutrients;
-
-                     // send nutrient data and redirect to get request
-                     res.render('show', {product: product})
-                    //  res.end(JSON.stringify({label: label, ing: ingredients, nutrients: nutrients}))
-                 }
-             })
-            
+            // var ndbList = data.list.item.map((brand) => {
+            //     // separate name from UPC code
+            //     var name = brand.name.split(", UPC:")[0]
+            //     var upc = brand.name.split(", UPC:")[1]
+            //     return { name: name, ndbno: brand.ndbno, upc: upc }
+            // })
+            res.json(data)          
         }
     }) 
     

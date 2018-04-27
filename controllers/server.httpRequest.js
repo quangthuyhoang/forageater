@@ -16,7 +16,7 @@ function ndbOption(key, sort, max, offset, format) {
 
 function getNDBUrl(query) {
     // check if string or convert to string
-  
+    console.log("query", query)
     if(!query) {
         throw Error('Search term was false: server.httpRequest.js')
     }
@@ -24,12 +24,7 @@ function getNDBUrl(query) {
     if(typeof food !== 'string') {
         food.tostring();
     }
-
-    var opt = new ndbOption();
-    if(option) {
-        opt = new ndbOption(option.ndbAPIkey, option.sort, option.max, option.offset)
-    }
-
+    
     return 'https://api.nal.usda.gov/ndb/search/?format=json&q=' + food;
 }
 
@@ -42,6 +37,7 @@ var option = {
 }
 
 function getAPIrequest(url, option = {type: ''}) {
+    console.log("insdie api request",option)
     var opt = new ndbOption(option.ndbAPIkey, option.sort, option.max, option.offset)
  
     if(option.type = 'query') {
@@ -66,6 +62,13 @@ function apiParser(error, response, body) {
     if(reponse.statusCode === 429) {
         var rate = checkAPILimit(response)
         return {error: response.statusCode, errorMessage: rate.remain + ' remaining out of ' + rate.limit}
+    }
+    if(response.statusCode !== 200) {
+        return {error: response.statusCode, errorMessage: response.errorMessage}
+    }
+
+    if(response.statusCode === 200 && body.errors) {
+        return {error: body.errors, errorMessage: 'There has been one or more returned API errors'}
     }
     if(response.statusCode === 200 && body) {
         var result = JSON.parse(response.body);
