@@ -36,15 +36,20 @@ var option = {
     type: 'query'  //'query' || 'ndb'
 }
 
-function getAPIrequest(url, option = {type: ''}) {
-    console.log("insdie api request",option)
+function getAPIrequest(query, option = {type: ''}) {
+    console.log("inside api", query, option, "option", option.type)
     var opt = new ndbOption(option.ndbAPIkey, option.sort, option.max, option.offset)
- 
-    if(option.type = 'query') {
-        return url + '&sort=' + opt.sort + '&max=' + opt.max + '&offset=' + opt.offset +'&api_key=' + opt.ndbAPIkey;
+ console.log("after", option, option.type)
+    if(option.type === 'query') {
+        console.log("option",option, option.type)
+        var base = getNDBUrl(query)
+        console.log("base", base)
+        return base + '&sort=' + opt.sort + '&max=' + opt.max + '&offset=' + opt.offset +'&api_key=' + opt.ndbAPIkey;
     }
-    
-    return url + '&type=f&format=json&api_key=' + opt.ndbAPIkey;
+
+    var url = getNutrientURL(query)
+    console.log("url", url)
+    return  url + '&type=f&format=json&api_key=' + opt.ndbAPIkey;
 }
 
 // RESPONSE HANDLER

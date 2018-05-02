@@ -23,8 +23,8 @@
         <h3>Recipe/Meal Input Page</h3>
         <div>
             <label for="itemSearch">Look up:</label>
-            <input id="itemSearch" type='text' />
-            <input id="itemSearchSubmit" type="button" value="search"/>
+            <input id="itemSearch" type='text' onchange="queryNDBNo(this.value)"/>
+            <input id="itemSearchSubmit" type="button" value="search" onclick="queryNDBNo()" />
         </div>
         <div class="recipeInput">
             <form action="/main/isedible/nutrition"  method="POST" name="meal">
@@ -56,22 +56,23 @@
         </div>
         
        
-        <script type="text/javascript" src="/controllers/client.recipeInput.js" ></script>
+        <script type="text/javascript" src="/views/js/client.recipeInput.js" ></script>
         <!-- Google Analytics: change UA-XXXXX-Y to be your site's ID. -->
         <script>
-           var searchItem = document.querySelector('#itemSearch')
-           var searchSubmit = document.querySelector('#itemSearchSubmit');
-           console.log(searchSubmit)
-           searchItem.onchange = function(e) {
-               queryNDBNo(e.target.value)
-               this.value = "";
-           }
-           searchSubmit.onclick = function(e) {
-               console.log(e.target.value)
-            //    clean input variable
-           }
+        //     console.log("booourns")
+        //    var searchItem = document.querySelector('#itemSearch')
+        //    var searchSubmit = document.querySelector('#itemSearchSubmit');
+        //    console.log(searchSubmit)
+        //    searchItem.onchange = function(e) {
+        //        queryNDBNo(e.target.value)
+        //        this.value = "";
+        //    }
+        //    searchSubmit.onclick = function(e) {
+        //        console.log(e.target.value)
+        //     //    clean input variable
+        //    }
         </script>
-        <script src="/controllers/script.js" type="text/javascript"></script>
-        <script src="https://www.google-analytics.com/analytics.js" async defer></script>
+        <!-- <script src="controllers/script.js" type="text/javascript"></script> -->
+        <!-- <script src="https://www.google-analytics.com/analytics.js" async defe></script> -->
     </body>
 </html>

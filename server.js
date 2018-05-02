@@ -2,6 +2,7 @@
 var express     = require('express'),
     bodyparser  = require('body-parser'),
     http = require('./controllers/server.httpRequest'),
+    path = require('path'),
     request = require('request');
 
 var app = express();
@@ -9,6 +10,8 @@ require('dotenv').load();
 
 app.set("view engine", 'ejs');
 app.use('/views', express.static(process.cwd() + '/views'));
+// app.use('/public', express.static(__dirname + '/public'));
+app.use
 app.use(bodyparser.urlencoded({extended:true}));
 const option = {
     ndbAPIkey: process.env.ndbAPIkey
@@ -23,12 +26,14 @@ app.get('/main', (req, res)=> {
 });
 
 app.get('/main/isedible', (req, res) => {
-    res.sendFile(process.cwd() + '/views/recipeinput.html')
+    res.sendFile(path.join(__dirname+ '/views/recipeinput.html'))
+    // res.sendFile(process.cwd() + '/views/recipeinput.html')
+    // path.join(__dirname
 })
 
 app.get('/main/isedible/:id/nutrition', (req, res) => {
-    console.log(req.params.id)
-    var url = http.getAPIrequest(http.getNutrientURL(req.params.id), option)
+  
+    var url = http.getAPIrequest(req.params.id, option)
     console.log("url",url)
     request.get({url: url}, (err, response, body) => {
         console.log("waiting on request... and", response.headers['x-ratelimit-remaining'] + '/' + response.headers['x-ratelimit-limit'])
@@ -36,13 +41,14 @@ app.get('/main/isedible/:id/nutrition', (req, res) => {
             console.log("nutrient api has responded")
              // organize nutrient
              var result = JSON.parse(response.body)
+             console.log("result get",result)
              var product = result.foods[0].food
              var d = {
                  label: product.desc,
                  ing: product.ing,
                  nutrients: product.nutrients
              }
-            
+            // res.json(result)
 
              // send nutrient data and redirect to get request
              console.log(d)
@@ -57,10 +63,11 @@ app.get('/api/search/:query', (req, res) => {
     console.log("req" ,req.query, req.params, req.body)
     var foodGroup = req.params.query;
 
-    const url = http.requestNDB(foodGroup);
+    // const url = http.requestNDB(foodGroup);
     option.type = 'query';
+    option.max = 15;
    
-    request.get({url: http.getAPIrequest(http.requestNDB(foodGroup), option)}, function(err, response, body) {
+    request.get({url: http.getAPIrequest(foodGroup, option)}, function(err, response, body) {
         if(err) {
             console.log(err)
         }
@@ -90,11 +97,12 @@ app.post('/main/isedible/nutrition', (req, res) => {
     var foodGroup = req.body;
     // lookup NDB number
     const option = {
-        ndbAPIkey: process.env.ndbAPIkey
+        ndbAPIkey: process.env.ndbAPIkey,
+        type: 'query'
     }
     
-    const url = http.requestNDB(foodGroup['item-1'], option);
-    
+    const url = http.getAPIrequest(foodGroup['item-1'], option);
+    console.log("url post", url)
     var results = [];
     
    
@@ -103,10 +111,11 @@ app.post('/main/isedible/nutrition', (req, res) => {
                 console.log(err)
             }
             if(response.statusCode !== 200) {
+                // console.log(body, response)
                 console.log("Response Error:", res.statusCode)
             }
             if(response.statusCode === 200 && response.body) {
-                console.log("status code 200")
+                console.log("status code 200", response.body)
                 var data = JSON.parse(response.body)
                 var ndbList = data.list.item.map((brand) => {
                     // separate name from UPC code
