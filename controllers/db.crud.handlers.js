@@ -10,9 +10,9 @@ dbControllers.insertDocuments = function(db, callback){
 		{a : 1},{a : 2},{a : 3}
 	], function(err, results) {
 		console.log('results:', results)
-		// assert.equal(err, null); //same as if(err !== null) then throw err
-		// assert.equal(3, results.result.n);
-		// assert.equal(3, results.ops.length);
+		assert.equal(err, null); //same as if(err !== null) then throw err
+		assert.equal(3, results.result.n);
+		assert.equal(3, results.ops.length);
 		console.log("Inserted 3 things into stuff");
 		callback(results);
 	})
@@ -21,7 +21,7 @@ dbControllers.insertDocuments = function(db, callback){
 // CREATE ONE USER DOCUMENT
 dbControllers.createOneUser = function(db, userObj, callback){
 	// get stuff from db
-	var collection = db.collection('stuff');
+	var collection = db.collection('Users');
 	// insert some things into stuff
 	collection.insertOne(userObj, function(err, results) {
 		console.log('results:', results.ops)
@@ -33,12 +33,12 @@ dbControllers.createOneUser = function(db, userObj, callback){
 }
 
 // CREATE MULTIPLE USER DOCUMENTS
-dbControllers.createManyFoods = function(db, foodObjArray, callback){
+dbControllers.createManyUser = function(db, userObjArray, callback){
 	// get stuff from db
-	var collection = db.collection('stuff');
+	var collection = db.collection('Users');
 	// insert some things into stuff
-	collection.insertMany(foodObjArray, function(err, results) {
-		console.log('results:', results);
+	collection.insertMany(userObjArray, function(err, results) {
+		console.log('results:', results.ops);
 		// assert.equal(err, null);
 		// assert.equal(userObjArray.length(), result.ops.length());
 		callback(results);
@@ -88,33 +88,3 @@ dbControllers.findDocuments = function(db, assert, callback){
 }
 
 module.exports = dbControllers;
-// module.exports = {
-//     create: function(nutritionObj = {}) {
-//         // add to DB
-//     },
-
-//     read: function(nutritionObj = {}) {
-//         // looks up ndno and pulls nutrtion info from db
-//     },
-//     update: function(nutritionObj = {}) {
-//         // update exist 
-//     },
-//     delete: function () {
-
-//     },
-
-//     checkDB(req, res, next) {
-//         // check if ndb number alreay exist in db
-//         var newObj = new Obj(res.body.response)
-//         var result = checkNDBno(newObj);
-//         if(!result) { // if result does not exist in database
-//             // return callback to query NDB database
-//             return next();
-            
-//         }
-//         // else..
-//         // query database and...
-//         return // results from personal databas
-//     }
-// }
-
