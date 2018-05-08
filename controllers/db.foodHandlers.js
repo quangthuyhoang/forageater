@@ -93,4 +93,26 @@ dbControllers.findFood = function(db, filterObj, callback){
 	})
 }
 
+// ASYNC FIND A DOCUMENT METHOD
+dbControllers.findFoodPromise = function(db, filterObj) {
+	var collection = db.collection('Food');
+
+	return new Promise(function(resolve, reject) {
+		var collection = db.collection('Food');
+
+		collection.find({'ndbno' : filterObj.ndbno}).toArray( function( err, documents) {
+
+			if(err) {
+				reject(new Error(err))
+			} 
+			if(!documents[0]) {
+				resolve(filterObj);
+			} else {
+				resolve(documents[0])
+			}
+		})
+	})
+}
+
+
 module.exports = dbControllers;

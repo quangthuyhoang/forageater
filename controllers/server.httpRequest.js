@@ -32,23 +32,36 @@ function getNutrientURL(ndbno) {
     return 'https://api.nal.usda.gov/ndb/V2/reports?ndbno=' + ndbno;
 }
 
+function getManyNutrientURL(arr, option) {
+
+    var urls = [];
+    for(let i = 0; i < arr.length; i++) {
+        if(!arr[i]._id) {
+            
+            urls.push(getAPIrequest(arr[i].ndbno, option))
+        }
+    }
+
+    return urls;
+}
+
 var option = {
     type: 'query'  //'query' || 'ndb'
 }
 
 function getAPIrequest(query, option = {type: ''}) {
-    console.log("inside api", query, option, "option", option.type)
+
     var opt = new ndbOption(option.ndbAPIkey, option.sort, option.max, option.offset)
- console.log("after", option, option.type)
+
     if(option.type === 'query') {
-        console.log("option",option, option.type)
+
         var base = getNDBUrl(query)
         console.log("base", base)
         return base + '&sort=' + opt.sort + '&max=' + opt.max + '&offset=' + opt.offset +'&api_key=' + opt.ndbAPIkey;
     }
 
     var url = getNutrientURL(query)
-    console.log("url", url)
+
     return  url + '&type=f&format=json&api_key=' + opt.ndbAPIkey;
 }
 
@@ -84,11 +97,16 @@ function apiParser(error, response, body) {
 
 // ERROR HANDLER
 // need to add
+// function errorHandler(response) {
+//     if(response.error)
+// }
 
 module.exports = {
     requestNDB: getNDBUrl,
  
     getNutrientURL: getNutrientURL,
+
+    getManyNutrientURL: getManyNutrientURL,
 
     getAPIrequest: getAPIrequest,
 
