@@ -106,8 +106,10 @@ dbControllers.findFoodPromise = function(db, filterObj) {
 				reject(new Error(err))
 			} 
 			if(!documents[0]) {
+				console.log("rejected", filterObj)
 				resolve(filterObj);
 			} else {
+				console.log("successfully found one", documents[0])
 				resolve(documents[0])
 			}
 		})

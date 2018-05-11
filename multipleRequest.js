@@ -15,40 +15,52 @@ module.exports = function(urls, callback) {
 
     // return new Promise(function(resolve, reject) {
 
-    
+    // console.log("inside fetchall", urls)
         for(i in urls) {
             (function(i) {http.get(urls[i], (res) => {
                 var buf = [];
                 res.setEncoding('utf8');
-                res.on('error', (error) => { console.log(error)})
+                res.on('error', (error) => { console.log("was there an error?"); console.log(error)})
                 res.on('data', (data) => {
-    
                     buf.push(data.toString())
                 })
                 res.on("end", ()=> {
-                    if(buf.join("")) {
-            
+                    if(buf.join("") && typeof buf.join("") === 'string' ) {
+           
                         result[i] = buf.join("");
-                        
+                        done++
+                        console.log(done, "result")
                     }
-                    if(result.length === urls.length) {
-                        console.log("result", result)
+                    
+                    
+                    
+                    if(result.length === urls.length && done === urls.length) {
+                        console.log("trigger added should be only once")
                         for(i in result) {
-                            var obj = JSON.parse(result[i])
-                            if(obj.error) {
-                               
-                                // reject(new Error(obj.error.message))
-                                // return obj.error;
-                            }
+                            // console.log("result", result)
+                            // if(result[i] === 'string') {
 
-                            responses.push(obj.foods[0].food)                            
+                                var obj = JSON.parse(result[i])
+
+                                if(obj.error) {
+                                   console.log("Error", obj.error)
+                                    // reject(new Error(obj.error.message))
+                                    // return obj.error;
+                                } 
+
+                                responses.push(obj.foods[0].food)  
+                        
                         }
-                        console.log(responses)
-                        // resolve(responses)
+
+                        console.log("length", responses)
+
                     }
+        
                 })
-            })})(i)
+            }
+        )})(i)
+            
         }
     // })
-
+        
 }

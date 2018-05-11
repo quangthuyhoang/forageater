@@ -65,25 +65,8 @@ mongoUtil.connectToServer(dbURL,dbName, function(err) {
                 var fd = responseList[0]
                 const db = client.db(dbName);
                 logDataSearch(db, responseList)
+                client.close()
 
-                // var ndbList = data.list.item.map((brand) => {
-                //     // separate name from UPC code
-                //     var name = brand.name.split(", UPC:")[0]
-                //     var upc = brand.name.split(", UPC:")[1]
-                //     return { name: name, ndbno: brand.ndbno, upc: upc }
-                // })
-                
-
-                // if not in system add to system
-
-                
-                // console.log("redirect...now", ndbList)
-                // var urls = [];
-                // option.type = "";
-              
-                // fetchAll(urls, se)
-                // console.log("food array", foodArr)
-                // seed(MongoClient, dbURL, ndbList)
                 res.redirect('/main/isedible/' + responseList[0].ndbno+ '/nutrition')
 
             }
@@ -182,120 +165,55 @@ app.get('/api/search/:query', (req, res) => {
  
 })
 
-// app.post('/main/isedible/nutrition', (req, res) => {
-//     if(!req.body['item-1']) {
-//         res.redirect('/main/isedible')
-//     }
-//     var foodGroup = req.body;
-//     // lookup NDB number
-//     const option = {
-//         ndbAPIkey: process.env.ndbAPIkey,
-//         type: 'query'
-//     }
-    
-//     const url = http.getAPIrequest(foodGroup['item-1'], option);
-//     console.log("url post", url)
-//     var results = [];
-    
-   
-//         request.get({url: url}, function(err, response, body) {
-//             if(err) {
-//                 console.log(err)
-//             }
-//             if(response.statusCode !== 200) {
-//                 // console.log(body, response)
-//                 console.log("Response Error:", res.statusCode)
-//             }
-//             if(response.statusCode === 200 && response.body) {
-//                 console.log("status code 200", response.body)
-//                 var data = JSON.parse(response.body)
-//                 var responseList = data.list.item, ndbList = [];
-//                 var fd = responseList[0]
-//                 // MongoClient.connect(dbURL, function(err, client){
-//                 //     console.log("Connected correctly with server.")
-//                 //     const db = client.db(dbName)
-//                 //     dbFoodHandler.findFood(db, fd, function(result) {
-//                 //         console.log("result:", result)
-//                 //         if(!result) {
-//                 //             dbFoodHandler.addOneFood(db, fd, function() {
-//                 //                 console.log("Success")
-//                 //                 client.close()
-//                 //             })
-//                 //         }
-//                 //         client.close()
-//                 //     })
-//                 // })
-//                 // loop through array create food Obj
-//                 for(let j = 0; j < responseList.length; j++) {
-//                     // console.log("responseList", responseList[j])
-//                     var name = responseList[j].name.split(", UPC:")[0]
-//                     var upc = responseList[j].name.split(", UPC:")[1]
-//                     var fd = new dbFoodHandler.foodClass(name, responseList[j].ndbno, upc)
-//                     // find and add to DB if does not exist
-//                     MongoClient.connect(dbURL, function(err, client){
-//                         console.log("Connected correctly with server.", j)
-//                         const db = client.db(dbName)
-//                         dbFoodHandler.findFood(db, fd, function(result) {
-//                             console.log("result:", result)
-//                             if(result.length < 1) {
-//                                 dbFoodHandler.addOneFood(db, fd, function() {
-//                                     console.log("Success")
-//                                     client.close()
-//                                 })
-//                             }
-//                             client.close()
-//                         })
-//                     })
-//                     console.log("after mongoclient")
-//                     ndbList.push(fd);
-//                 }
-//                 // var ndbList = data.list.item.map((brand) => {
-//                 //     // separate name from UPC code
-//                 //     var name = brand.name.split(", UPC:")[0]
-//                 //     var upc = brand.name.split(", UPC:")[1]
-//                 //     return { name: name, ndbno: brand.ndbno, upc: upc }
-//                 // })
-                
-
-//                 // if not in system add to system
-
-                
-//                 // console.log("redirect...now", ndbList)
-//                 // var urls = [];
-//                 // option.type = "";
-              
-//                 // fetchAll(urls, se)
-//                 // console.log("food array", foodArr)
-//                 // seed(MongoClient, dbURL, ndbList)
-//                 res.redirect('/main/isedible/' + ndbList[0].ndbno+ '/nutrition')
-
-//             }
-//         })
-
-// })
 
 
 var port = process.env.PORT || 3000;
 app.listen(port, function(){
 	console.log("Now running on port:", port)
 });
+// const a = [ 'https://api.nal.usda.gov/ndb/V2/reports?ndbno=45044107&type=f&format=json&api_key=amDzDlse9UvPbte7K2uMdlALSD0JKXByOPuhp5eO',
+// 'https://api.nal.usda.gov/ndb/V2/reports?ndbno=45018288&type=f&format=json&api_key=amDzDlse9UvPbte7K2uMdlALSD0JKXByOPuhp5eO',
+// 'https://api.nal.usda.gov/ndb/V2/reports?ndbno=45135801&type=f&format=json&api_key=amDzDlse9UvPbte7K2uMdlALSD0JKXByOPuhp5eO',
+// 'https://api.nal.usda.gov/ndb/V2/reports?ndbno=45285177&type=f&format=json&api_key=amDzDlse9UvPbte7K2uMdlALSD0JKXByOPuhp5eO',
+// 'https://api.nal.usda.gov/ndb/V2/reports?ndbno=45055648&type=f&format=json&api_key=amDzDlse9UvPbte7K2uMdlALSD0JKXByOPuhp5eO',
+// 'https://api.nal.usda.gov/ndb/V2/reports?ndbno=45203301&type=f&format=json&api_key=amDzDlse9UvPbte7K2uMdlALSD0JKXByOPuhp5eO',
+// 'https://api.nal.usda.gov/ndb/V2/reports?ndbno=45199712&type=f&format=json&api_key=amDzDlse9UvPbte7K2uMdlALSD0JKXByOPuhp5eO' ]
 
+// fetchAll(a)
 async function logDataSearch(db, arr) {
     let promises = [];
+
+    
     for (let i = 0; i < arr.length; i++) {
         promises[i] = dbFoodHandler.findFoodPromise(db, arr[i])
     }
+    // } catch (error) {
+    //     console.log("logDataSearch error:", error)
+    //     throw new Error(error)
+    // }
+    console.log("promises", promises)
     
     return Promise.all(promises)
-    .then(http.getManyNutrientURL(arr, option))
-    .then(function(urls) {
-        console.log(urls)
+    
+    // find all food item from both localDB and API
+    // .then(http.getManyNutrientURL(arr, option))
+    // aggregate food data + store any new API data not in localDB
+    .then(function(urlArr) {
+        console.log("1st", urlArr.length)
+        var reqList = http.getManyNutrientURL(urlArr, option)
+        return reqList;
     })
-    // .then(fetchAll)
-    // .then(async function(data) {
-    //     console.log("here's the data to save to db", data)
+    .then(fetchAll)
+    // .then(function(urls) {
+    //     fetchAll(urls)
     // })
+    .then(function(resps) {
+        console.log("final length", resps)
+    })
+    
     .catch(function(err) {
         console.log(err)
     })
 }
+
+// async function 
