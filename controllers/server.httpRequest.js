@@ -1,25 +1,10 @@
 
 request = require('request');
+var searchOption = require('./options/option');
 // food, sort, max, offset, apikey
 
 // *** API  ***
-// option object
-// {
-//     ds: "Standard Reference",
-//     sort: "n",
-//     max: 100,
-//     offset: 0,
-//     format:
-// }
 
-function newOption(obj) {
-    var self = this;
-    self.sort = obj.sort || 'n';
-    self.max = obj.max || 10;
-    self.offset = obj.offset || 0;
-    self.f = obj.format || 'f';
-    self.ds = obj.ds
-}
 // Request handler
 function ndbOption(key, sort, max, offset, format) {
     var self = this;
@@ -66,11 +51,11 @@ function getManyNutrientURL(arr, option) {
 var option = {
     type: 'query'  //'query' || 'ndb'
 }
-https://api.nal.usda.gov/ndb/search/?format=json&q=chicken raw&sort=n&max=100&ds=Standard Reference&offset=0&api_key=amDzDlse9UvPbte7K2uMdlALSD0JKXByOPuhp5eO
+// https://api.nal.usda.gov/ndb/search/?format=json&q=chicken raw&sort=n&max=100&ds=Standard Reference&offset=0&api_key=amDzDlse9UvPbte7K2uMdlALSD0JKXByOPuhp5eO
 
 function searchAPIrequest(query, option) {
-    var opt = new ndbOption(option.ndbAPIkey, option.sort, option.max, option.offset)
-    return getNDBUrl(query) + 
+    var opt = new searchOption(option)
+    return getNDBUrl(query) + opt.getParameters() //returns API request URL
 }
 
 function getAPIrequest(query, option = {type: ''}) {
@@ -117,7 +102,6 @@ function apiParser(error, response, body) {
     }
 }
 
-// 
 
 // ERROR HANDLER
 // need to add
@@ -133,6 +117,8 @@ module.exports = {
     getManyNutrientURL: getManyNutrientURL,
 
     getAPIrequest: getAPIrequest,
+
+    searchAPIrequest: searchAPIrequest,
 
     requestNutr: function(url, request) {
         return request.get({url: url}, (err, response, body) => {
@@ -151,6 +137,7 @@ module.exports = {
     },
     // rate limit check
     checkAPILimit: checkAPILimit,
-    
+
+    // newOption: newOption,
 }
 

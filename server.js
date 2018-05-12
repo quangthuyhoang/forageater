@@ -11,6 +11,7 @@ var express     = require('express'),
     dbFoodHandler = require('./controllers/db.foodHandlers'),
     request = require('request'),
     apiRoutes = require('./app/routes/api');
+    // searchOption = require('./controllers/options/option');
 
 var app = express();
 
@@ -134,6 +135,116 @@ app.get('/main/isedible/:id/nutrition', (req, res) => {
     })
 
 })
+// https://api.nal.usda.gov/ndb/search/?format=json&q=chicken&sort=n&max=100&ds=Standard Reference&offset=0&api_key=amDzDlse9UvPbte7K2uMdlALSD0JKXByOPuhp5eO
+// https://api.nal.usda.gov/ndb/search/?format=json&q=chicken raw&sort=n&max=100&ds=Standard Reference&offset=0&api_key=amDzDlse9UvPbte7K2uMdlALSD0JKXByOPuhp5eO
+
+
+
+// Standard Reference DB
+app.get('/api/sr/:query', (req, res) => {
+    console.log("look at me", req.params.query)
+    var srOption = {
+        ds: "Standard Reference",
+        sort: "n",
+        max: 100,
+        offset: 0,
+        ndbAPIkey: process.env.ndbAPIkey
+    }
+
+    console.log(http.searchAPIrequest(req.params.query, srOption))
+
+    request.get({url: http.searchAPIrequest(req.params.query, srOption) + '&api_key=' + process.env.ndbAPIkey}, function(err, response, body) {
+        if(err) {
+            console.log(err)
+            res.send(err)
+        }
+
+        var data = JSON.parse(body)
+
+        if(response.statusCode === 200 && data.errors) {
+            console.log("there's any error")
+            if(data.errors.error[0].status === 400) {
+                res.redirect('/api/any/' + req.params.query)
+            } else {
+                res.json({errors: data.errors.error[0]})
+            }
+        }
+
+        if(!err && response.statusCode === 200 && !data.errors) {
+            console.log("no erros in sr bl")
+            res.json(data)
+        }
+    })
+})
+
+// Branded Food Product DB
+app.get('/api/bl/:query', (req, res) => {
+    console.log("look at me", req.params.query)
+    var srOption = {
+        ds: "Branded Food Products",
+        sort: "n",
+        max: 100,
+        offset: 0,
+        ndbAPIkey: process.env.ndbAPIkey
+    }
+
+    console.log(http.searchAPIrequest(req.params.query, srOption))
+
+    request.get({url: http.searchAPIrequest(req.params.query, srOption) + '&api_key=' + process.env.ndbAPIkey}, function(err, response, body) {
+        if(err) {
+            console.log(err)
+            res.send(err)
+        }
+
+        var data = JSON.parse(body)
+
+        if(response.statusCode === 200 && data.errors) {
+            console.log("there's any error")
+            if(data.errors.error[0].status === 400) {
+                res.redirect('/api/any/' + req.params.query)
+            } else {
+                res.json({errors: data.errors.error[0]})
+            }
+        }
+
+        if(!err && response.statusCode === 200 && !data.errors) {
+            console.log("no erros in sr bl")
+            res.json(data)
+        }
+    })
+})
+
+app.get('/api/any/:query', (req, res) => {
+    console.log("any was touch")
+    var srOption = {
+        // ds: "Branded Food Products",
+        sort: "n",
+        max: 100,
+        offset: 0,
+        ndbAPIkey: process.env.ndbAPIkey
+    }
+
+    console.log(http.searchAPIrequest(req.params.query, srOption))
+
+    request.get({url: http.searchAPIrequest(req.params.query, srOption) + '&api_key=' + process.env.ndbAPIkey}, function(err, response, body) {
+        if(err) {
+            console.log(err)
+            res.send(err)
+        }
+
+        if(response.statusCode === 200 && body.errors) {
+            console.log(body.errors.error)
+            res.json({errors: body.errors.error})
+        }
+
+        if(!err && response.statusCode === 200) {
+            console.log("no erros in any")
+            var data = JSON.parse(body)
+            res.json(data)
+        }
+    })
+})
+
 
 app.get('/api/search/:query', (req, res) => {
     console.log("req" ,req.query, req.params, req.body)
@@ -162,8 +273,9 @@ app.get('/api/search/:query', (req, res) => {
             res.json(data)          
         }
     }) 
- 
 })
+
+
 
 
 
