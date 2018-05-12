@@ -135,14 +135,13 @@ app.get('/main/isedible/:id/nutrition', (req, res) => {
     })
 
 })
-// https://api.nal.usda.gov/ndb/search/?format=json&q=chicken&sort=n&max=100&ds=Standard Reference&offset=0&api_key=amDzDlse9UvPbte7K2uMdlALSD0JKXByOPuhp5eO
-// https://api.nal.usda.gov/ndb/search/?format=json&q=chicken raw&sort=n&max=100&ds=Standard Reference&offset=0&api_key=amDzDlse9UvPbte7K2uMdlALSD0JKXByOPuhp5eO
 
 
+// ** FIND NDBNO
 
 // Standard Reference DB
 app.get('/api/sr/:query', (req, res) => {
-    console.log("look at me", req.params.query)
+
     var srOption = {
         ds: "Standard Reference",
         sort: "n",
@@ -162,7 +161,7 @@ app.get('/api/sr/:query', (req, res) => {
         var data = JSON.parse(body)
 
         if(response.statusCode === 200 && data.errors) {
-            console.log("there's any error")
+          
             if(data.errors.error[0].status === 400) {
                 res.redirect('/api/any/' + req.params.query)
             } else {
@@ -171,15 +170,15 @@ app.get('/api/sr/:query', (req, res) => {
         }
 
         if(!err && response.statusCode === 200 && !data.errors) {
-            console.log("no erros in sr bl")
+        
             res.json(data)
         }
     })
 })
 
-// Branded Food Product DB
+// Branded Food Product DB Route
 app.get('/api/bl/:query', (req, res) => {
-    console.log("look at me", req.params.query)
+ 
     var srOption = {
         ds: "Branded Food Products",
         sort: "n",
@@ -199,7 +198,7 @@ app.get('/api/bl/:query', (req, res) => {
         var data = JSON.parse(body)
 
         if(response.statusCode === 200 && data.errors) {
-            console.log("there's any error")
+    
             if(data.errors.error[0].status === 400) {
                 res.redirect('/api/any/' + req.params.query)
             } else {
@@ -208,16 +207,17 @@ app.get('/api/bl/:query', (req, res) => {
         }
 
         if(!err && response.statusCode === 200 && !data.errors) {
-            console.log("no erros in sr bl")
+            
             res.json(data)
         }
     })
 })
 
+// All DB Source Route
 app.get('/api/any/:query', (req, res) => {
-    console.log("any was touch")
+
     var srOption = {
-        // ds: "Branded Food Products",
+ 
         sort: "n",
         max: 100,
         offset: 0,
@@ -238,14 +238,42 @@ app.get('/api/any/:query', (req, res) => {
         }
 
         if(!err && response.statusCode === 200) {
-            console.log("no erros in any")
+         
             var data = JSON.parse(body)
             res.json(data)
         }
     })
 })
 
+// Request ndbno Route
+app.get('/api/ndblist/:id', (req, res) => {
+    option.type = "";
+    var ndbObj = {
+        ndbno: req.params.id,
+        option: option
+    }
+    var url = http.getAPIrequest(req.params.id, option)
+ 
+    request.get({url: url}, (err, response, body) => {
+        console.log("waiting on request... and", response.headers['x-ratelimit-remaining'] + '/' + response.headers['x-ratelimit-limit'])
+        if(err) {
+            console.log(err)
+        }
 
+        var result = JSON.parse(body)
+
+        if(response.statusCode === 200 & result.notfound > 0) {
+            console.log("errors", result)
+            res.json(result)
+        }
+        if(!err && response.statusCode === 200 && result.notfound < 1) {
+             res.json(result)
+            }   
+    })
+})
+
+
+// *** might not need this any more **
 app.get('/api/search/:query', (req, res) => {
     console.log("req" ,req.query, req.params, req.body)
     var foodGroup = req.params.query;
