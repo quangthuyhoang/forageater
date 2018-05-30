@@ -1,21 +1,9 @@
 var http = require('https');
 
-// function fetchAllPromise (method, urls) {
-//     var responses = [], result = [];
-//     var done = 0;
-
-//     return new Promise(function(resolve, reject) {
-
-//     })
-// }
-
+// Fetch an array of api url request and returns an array of responses
 module.exports = function(urls, callback) {
     var responses = [], result = [];
     var done = 0;
-
-    // return new Promise(function(resolve, reject) {
-
-    // console.log("inside fetchall", urls)
         for(i in urls) {
             (function(i) {http.get(urls[i], (res) => {
                 var buf = [];
@@ -25,21 +13,17 @@ module.exports = function(urls, callback) {
                     buf.push(data.toString())
                 })
                 res.on("end", ()=> {
+                    // after each stream is complete add entire string into array by order of request
                     if(buf.join("") && typeof buf.join("") === 'string' ) {
            
                         result[i] = buf.join("");
                         done++
-                        console.log(done, "result")
                     }
-                    
-                    
-                    
+                    // check if each request has been completed
                     if(result.length === urls.length && done === urls.length) {
-                        console.log("trigger added should be only once")
+                      
                         for(i in result) {
-                            // console.log("result", result)
-                            // if(result[i] === 'string') {
-
+          
                                 var obj = JSON.parse(result[i])
 
                                 if(obj.error) {
@@ -47,12 +31,9 @@ module.exports = function(urls, callback) {
                                     // reject(new Error(obj.error.message))
                                     // return obj.error;
                                 } 
-
                                 responses.push(obj.foods[0].food)  
-                        
                         }
-
-                        console.log("length", responses)
+                        callback(responses)
 
                     }
         
@@ -61,6 +42,5 @@ module.exports = function(urls, callback) {
         )})(i)
             
         }
-    // })
         
 }

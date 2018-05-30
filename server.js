@@ -10,7 +10,8 @@ var express     = require('express'),
     dbNutrientMethods = require('./controllers/db.crud.nutrientHandlers'),
     dbFoodHandler = require('./controllers/db.foodHandlers'),
     request = require('request'),
-    apiRoutes = require('./app/routes/api');
+    apiRoutes = require('./app/routes/api'),
+    calcTotalNutritionalValue = require('./controllers/api_handlers/apiParser').calcTotalNutritionalValue;
     // searchOption = require('./controllers/options/option');
 
 var app = express();
@@ -85,11 +86,6 @@ app.get('/main', (req, res)=> {
     res.send("Main Page")
 });
 
-app.get('/main/isedible', (req, res) => {
-    res.sendFile(path.join(__dirname+ '/views/recipeinput.html'))
-    // res.sendFile(process.cwd() + '/views/recipeinput.html')
-    // path.join(__dirname
-})
 
 app.get('/main/isedible/:id/nutrition', (req, res) => {
     // check if nbdno already exist in localDB
@@ -137,10 +133,38 @@ app.get('/main/isedible/:id/nutrition', (req, res) => {
 })
 
 
-// ** FIND NDBNO
+// ** POST NUTRITION ROUTE
+app.post('/api/nutrition', (req, res) => {
+    console.log(req)
+    var dishArr = req.body.arr.map(function(data){
+        return JSON.parse(data)
+    });
+
+    var nutritionOption = {
+        ds: "Standard Reference",
+        sort: "n",
+        max: 100,
+        offset: 0,
+        ndbAPIkey: process.env.ndbAPIkey
+    }
+    var urlArr = http.getManyNutrientURL(dishArr, nutritionOption)
+  
+    fetchAll(urlArr, function(response) {
+        console.log("API info successfully trieved. Sending data to client...")
+        let nutritionalData = calcTotalNutritionalValue(response);
+        console.log(nutritionalData)
+        res.json(nutritionalData)
+    })  
+    // res.end("done")
+})
 
 // Standard Reference DB
 app.get('/api/sr/:query', (req, res) => {
+    // Set CORS headers
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Request-Method', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET');
+    res.setHeader('Access-Control-Allow-Headers', '*');
 
     var srOption = {
         ds: "Standard Reference",
@@ -149,8 +173,6 @@ app.get('/api/sr/:query', (req, res) => {
         offset: 0,
         ndbAPIkey: process.env.ndbAPIkey
     }
-
-    console.log(http.searchAPIrequest(req.params.query, srOption))
 
     request.get({url: http.searchAPIrequest(req.params.query, srOption) + '&api_key=' + process.env.ndbAPIkey}, function(err, response, body) {
         if(err) {
@@ -170,7 +192,6 @@ app.get('/api/sr/:query', (req, res) => {
         }
 
         if(!err && response.statusCode === 200 && !data.errors) {
-        
             res.json(data)
         }
     })
@@ -178,7 +199,12 @@ app.get('/api/sr/:query', (req, res) => {
 
 // Branded Food Product DB Route
 app.get('/api/bl/:query', (req, res) => {
- 
+    // Set CORS headers
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Request-Method', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET');
+    res.setHeader('Access-Control-Allow-Headers', '*');
+
     var srOption = {
         ds: "Branded Food Products",
         sort: "n",
@@ -215,7 +241,11 @@ app.get('/api/bl/:query', (req, res) => {
 
 // All DB Source Route
 app.get('/api/any/:query', (req, res) => {
-
+    // Set CORS headers
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Request-Method', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET');
+    res.setHeader('Access-Control-Allow-Headers', '*');
     var srOption = {
  
         sort: "n",
