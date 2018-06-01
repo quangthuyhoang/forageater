@@ -48,9 +48,10 @@ function getNutrientList(dish) {
 
 // Input nutrients array -> output sum of all values
 function sumNutrientValues(nutrientvalues) {
-  return nutrientvalues
+  let sumVal = nutrientvalues
   .map(nutrient => nutrient.value)
   .reduce((prev, curr) => prev + curr);
+  return Math.round(sumVal);
 }
 
 // Base nutrition function

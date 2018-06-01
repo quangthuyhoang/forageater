@@ -23,7 +23,24 @@ app.use('/views', express.static(process.cwd() + '/views'));
 // app.use('/public', express.static(__dirname + '/public'));
 // app.use
 app.use(bodyparser.urlencoded({extended:true}));
+app.use(bodyparser.json());
+app.use(function (req, res, next) {
 
+    // Website you wish to allow to connect
+    res.setHeader('Access-Control-Allow-Origin', '*');
+
+    // Request methods you wish to allow
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE, *');
+
+    // Request headers you wish to allow
+    res.setHeader('Access-Control-Allow-Headers', '*');
+
+    // Set to true if you need the website to include cookies in the requests sent
+    // to the API (e.g. in case you use sessions)
+
+    // Pass to next layer of middleware
+    next();
+});
 const option = {
     ndbAPIkey: process.env.ndbAPIkey
 }
@@ -33,54 +50,59 @@ var dbURL = 'mongodb://localhost:27017';
 const dbName = 'forageat';
 
 // Connect to DB
-mongoUtil.connectToServer(dbURL,dbName, function(err) {
-    var client = mongoUtil.getDB();
-    // apiRoutes(app, db);
-    app.post('/main/isedible/nutrition', (req, res) => {
-    if(!req.body['item-1']) {
-        res.redirect('/main/isedible')
-    }
-    var foodGroup = req.body;
-    // lookup NDB number
-    const option = {
-        ndbAPIkey: process.env.ndbAPIkey,
-        type: 'query'
-    }
+// mongoUtil.connectToServer(dbURL,dbName, function(err) {
+//     var client = mongoUtil.getDB();
+//     // apiRoutes(app, db);
+//     app.post('/main/isedible/nutrition', (req, res) => {
+//     if(!req.body['item-1']) {
+//         res.redirect('/main/isedible')
+//     }
+//     var foodGroup = req.body;
+//     // lookup NDB number
+//     const option = {
+//         ndbAPIkey: process.env.ndbAPIkey,
+//         type: 'query'
+//     }
     
-    const url = http.getAPIrequest(foodGroup['item-1'], option);
-    console.log("url post", url)
-    var results = [];
+//     const url = http.getAPIrequest(foodGroup['item-1'], option);
+//     console.log("url post", url)
+//     var results = [];
     
    
-        request.get({url: url}, function(err, response, body) {
-            if(err) {
-                console.log(err)
-            }
-            if(response.statusCode !== 200) {
-                // console.log(body, response)
-                console.log("Response Error:", res.statusCode)
-            }
-            if(response.statusCode === 200 && response.body) {
-                console.log("status code 200", response.body)
-                var data = JSON.parse(response.body)
-                var responseList = data.list.item, ndbList = [];
-                var fd = responseList[0]
-                const db = client.db(dbName);
-                logDataSearch(db, responseList)
-                client.close()
+//         request.get({url: url}, function(err, response, body) {
+//             if(err) {
+//                 console.log(err)
+//             }
+//             if(response.statusCode !== 200) {
+//                 // console.log(body, response)
+//                 console.log("Response Error:", res.statusCode)
+//             }
+//             if(response.statusCode === 200 && response.body) {
+//                 console.log("status code 200", response.body)
+//                 var data = JSON.parse(response.body)
+//                 var responseList = data.list.item, ndbList = [];
+//                 var fd = responseList[0]
+//                 const db = client.db(dbName);
+//                 logDataSearch(db, responseList)
+//                 client.close()
 
-                res.redirect('/main/isedible/' + responseList[0].ndbno+ '/nutrition')
+//                 res.redirect('/main/isedible/' + responseList[0].ndbno+ '/nutrition')
 
-            }
-        })
+//             }
+//         })
 
-})
-})
+// })
+// })
 
 // ROUTING
 app.get('/', (req, res)=> {
     res.send('landing page')
 });
+
+app.post('/', (req, res) => {
+    console.log('req.body', req.body)
+    res.json({"reply":"success"})
+})
 
 app.get('/main', (req, res)=> {
     res.send("Main Page")
@@ -132,14 +154,13 @@ app.get('/main/isedible/:id/nutrition', (req, res) => {
 
 })
 
-
 // ** POST NUTRITION ROUTE
 app.post('/api/nutrition', (req, res) => {
-    console.log(req)
-    var dishArr = req.body.arr.map(function(data){
-        return JSON.parse(data)
-    });
-
+    var dishArr = req.body;
+    // var dishArr = req.body.arr.map(function(data){
+    //     return JSON.parse(data)
+    // });
+    console.log(dishArr)
     var nutritionOption = {
         ds: "Standard Reference",
         sort: "n",
@@ -152,7 +173,6 @@ app.post('/api/nutrition', (req, res) => {
     fetchAll(urlArr, function(response) {
         console.log("API info successfully trieved. Sending data to client...")
         let nutritionalData = calcTotalNutritionalValue(response);
-        console.log(nutritionalData)
         res.json(nutritionalData)
     })  
     // res.end("done")
