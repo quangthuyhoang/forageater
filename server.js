@@ -157,10 +157,6 @@ app.get('/main/isedible/:id/nutrition', (req, res) => {
 // ** POST NUTRITION ROUTE
 app.post('/api/nutrition', (req, res) => {
     var dishArr = req.body;
-    // var dishArr = req.body.arr.map(function(data){
-    //     return JSON.parse(data)
-    // });
-    console.log(dishArr)
     var nutritionOption = {
         ds: "Standard Reference",
         sort: "n",
@@ -175,16 +171,15 @@ app.post('/api/nutrition', (req, res) => {
         let nutritionalData = calcTotalNutritionalValue(response);
         res.json(nutritionalData)
     })  
-    // res.end("done")
 })
 
 // Standard Reference DB
 app.get('/api/sr/:query', (req, res) => {
     // Set CORS headers
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Request-Method', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET');
-    res.setHeader('Access-Control-Allow-Headers', '*');
+    // res.setHeader('Access-Control-Allow-Origin', '*');
+    // res.setHeader('Access-Control-Request-Method', '*');
+    // res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET');
+    // res.setHeader('Access-Control-Allow-Headers', '*');
 
     var srOption = {
         ds: "Standard Reference",
@@ -220,10 +215,10 @@ app.get('/api/sr/:query', (req, res) => {
 // Branded Food Product DB Route
 app.get('/api/bl/:query', (req, res) => {
     // Set CORS headers
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Request-Method', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET');
-    res.setHeader('Access-Control-Allow-Headers', '*');
+    // res.setHeader('Access-Control-Allow-Origin', '*');
+    // res.setHeader('Access-Control-Request-Method', '*');
+    // res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET');
+    // res.setHeader('Access-Control-Allow-Headers', '*');
 
     var srOption = {
         ds: "Branded Food Products",
@@ -262,10 +257,10 @@ app.get('/api/bl/:query', (req, res) => {
 // All DB Source Route
 app.get('/api/any/:query', (req, res) => {
     // Set CORS headers
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Request-Method', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET');
-    res.setHeader('Access-Control-Allow-Headers', '*');
+    // res.setHeader('Access-Control-Allow-Origin', '*');
+    // res.setHeader('Access-Control-Request-Method', '*');
+    // res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET');
+    // res.setHeader('Access-Control-Allow-Headers', '*');
     var srOption = {
  
         sort: "n",
