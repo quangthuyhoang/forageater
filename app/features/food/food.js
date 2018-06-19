@@ -21,9 +21,9 @@ function Food(foodObj) {
 }
 
 Food.prototype.sanitize = function (data) {
-  let data = data || {};
+  let datas = data || {};
   let foodSchema = schemas.food;
-  return _.pick(_.defaults(data, foodSchema), _.keys(foodSchema));
+  return _.pick(_.defaults(datas, foodSchema), _.keys(foodSchema));
 }
 
 Food.prototype.data = {};
@@ -35,3 +35,14 @@ Food.prototype.get = function (name) {
 Food.prototype.set = function (name, value) {
   this.data[name] = value;
 }
+
+Food.prototype.upc_check = function (name) {
+  let index = name.toUpperCase().indexOf(', UPC:');
+  let upc = (index > -1) ? name.substring(index + 7, name.length) : false;
+  if(!upc) {
+    return;
+  }
+  return upc;
+}
+
+module.exports = Food;

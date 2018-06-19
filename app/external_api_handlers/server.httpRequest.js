@@ -1,6 +1,7 @@
 
 request = require('request');
 var searchOption = require('./options/option');
+const debug = require('debug')('server.httpRequest');
 // food, sort, max, offset, apikey
 
 // *** API  ***
@@ -17,7 +18,6 @@ function ndbOption(key, sort, max, offset, format) {
 
 function getNDBUrl(query) {
     // check if string or convert to string
-    console.log("query", query)
     if(!query) {
         throw Error('Search term was false: server.httpRequest.js')
     }
@@ -38,12 +38,9 @@ function getManyNutrientURL(arr, option) {
     
     for(let i = 0; i < arr.length; i++) {
         if(!arr[i]._id) {
-            urls.push(getAPIrequest(arr[i].ndbno, option))
+            urls.push(getAPIrequest(arr[i].data.ndbno, option))
         }
     }
-
-    console.log(urls)
-
     return urls;
 }
 
@@ -62,14 +59,13 @@ function getAPIrequest(query, option = {type: ''}) {
     var opt = new ndbOption(option.ndbAPIkey, option.sort, option.max, option.offset)
 
     if(option.type === 'query') {
-
         var base = getNDBUrl(query)
-        console.log("base", base)
+      
         return base + '&sort=' + opt.sort + '&max=' + opt.max + '&offset=' + opt.offset +'&api_key=' + opt.ndbAPIkey;
     }
 
     var url = getNutrientURL(query)
-
+   
     return  url + '&type=f&format=json&api_key=' + opt.ndbAPIkey;
 }
 

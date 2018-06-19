@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "test": "mocha",
-    "start": "set DEBUG=my-namespace & nodemon server.js",
+    "start": "set DEBUG=* & nodemon server.js",
     "lint": "eslint server.js"
   },
   "repository": {
@@ -30,14 +30,16 @@
     "mongodb": "^3.0.7",
     "node-fetch": "^2.1.2",
     "nodemon": "^1.17.3",
-    "request": "^2.85.0"
+    "request": "^2.85.0",
+    "validate": "^4.4.1"
   },
   "devDependencies": {
     "chai": "^4.1.2",
     "debug": "^3.1.0",
     "eslint": "^4.19.1",
     "eslint-config-airbnb-base": "^12.1.0",
-    "eslint-plugin-import": "^2.12.0"
+    "eslint-plugin-import": "^2.12.0",
+    "morgan": "^1.9.0"
   },
   "nodemonConfig": {
     "restartable": "rs",
