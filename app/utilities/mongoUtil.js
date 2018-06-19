@@ -1,16 +1,17 @@
-var MongoClient = require('mongodb'),MongoClient;
+'use strict';
+const MongoClient = require('mongodb').MongoClient;
 
 var _client;
 
 module.exports = {
-    connectToServer: function(url, dbName, callback) {
-        MongoClient.connect(url, function(err, client) {
+    connectToServer: function (url, dbName, callback) {
+        MongoClient.connect(url, function (err, client) {
             _client = client;
-            return callback( err );
+            return callback(err);
         })
     },
 
-    getDB: function() {
+    getDB: function () {
         return _client;
     }
 }

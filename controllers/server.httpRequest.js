@@ -34,11 +34,10 @@ function getNutrientURL(ndbno) {
 }
 
 function getManyNutrientURL(arr, option) {
-    console.log("inside getmany nutrient url", arr)
     var urls = [];
+    
     for(let i = 0; i < arr.length; i++) {
         if(!arr[i]._id) {
-            // console.log(getAPIrequest(arr[i].ndbno, option))
             urls.push(getAPIrequest(arr[i].ndbno, option))
         }
     }

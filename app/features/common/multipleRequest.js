@@ -1,11 +1,12 @@
+'use strict';
 var http = require('https');
 
 // Fetch an array of api url request and returns an array of responses
-module.exports = function(urls, callback) {
+module.exports = function multipleRequests(urls, callback) {
     var responses = [], result = [];
     var done = 0;
-        for(i in urls) {
-            (function(i) {http.get(urls[i], (res) => {
+        for(let i in urls) {
+            (function loop(i) {http.get(urls[i], (res) => {
                 var buf = [];
                 res.setEncoding('utf8');
                 res.on('error', (error) => { console.log("was there an error?"); console.log(error)})
@@ -24,14 +25,14 @@ module.exports = function(urls, callback) {
                       
                         for(i in result) {
           
-                                var obj = JSON.parse(result[i])
+                            var obj = JSON.parse(result[i])
 
-                                if(obj.error) {
-                                   console.log("Error", obj.error)
-                                    // reject(new Error(obj.error.message))
-                                    // return obj.error;
-                                } 
-                                responses.push(obj.foods[0].food)  
+                            if(obj.error) {
+                                console.log("Error", obj.error)
+                                // reject(new Error(obj.error.message))
+                                // return obj.error;
+                            } 
+                            responses.push(obj.foods[0].food)  
                         }
                         callback(responses)
 
@@ -42,5 +43,4 @@ module.exports = function(urls, callback) {
         )})(i)
             
         }
-        
 }

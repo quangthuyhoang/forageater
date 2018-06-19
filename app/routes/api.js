@@ -1,4 +1,4 @@
-request = require('request'),
+const request = require('request'),
 dbFoodHandler = require("../../controllers/db.foodHandlers"),
 http = require('../../controllers/server.httpRequest'),
 MongoClient = require('mongodb').MongoClient,
