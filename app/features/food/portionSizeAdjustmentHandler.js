@@ -1,3 +1,4 @@
+const debug = require('debug')('portionSizeAdjustmentHandler');
 function portionSizeAdjustmentHandler(nutritionResponse, requestedDish) {
     var scaledNutritionResponse = nutritionResponse.map(foodItem => {
 
@@ -5,11 +6,13 @@ function portionSizeAdjustmentHandler(nutritionResponse, requestedDish) {
             if(foodItem.desc.ndbno === requestedDish[i].ndbno) {
                 // check if unit is in gram
                 if(requestedDish[i].portionSize.unit !== 'g') {
+           
                     // convert unit to equivalent gram value
                 }
                 let portionScale = requestedDish[i].portionSize.value / 100;
-
+    
                 foodItem.nutrients = applyPoritionSize(foodItem.nutrients, portionScale)
+      
             }
         }
 

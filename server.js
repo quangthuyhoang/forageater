@@ -132,9 +132,11 @@ app.post('/api/nutrition', (req, res) => {
 
   var urlArr = http.getManyNutrientURL(newDishArr, nutritionOption)
   debug(urlArr)
+ 
   fetchAll(urlArr, (response) => {
     debug("API info successfully retrieved. Sending data to client...");
     let updatedResponse = portionSizeAdjustmentHandler(response, dishArr);
+    debug("u_response", updatedResponse[0].nutrients)
     let nutritionalData = calcTotalNutritionalValue(updatedResponse);
     res.json(nutritionalData)
   })

@@ -1,4 +1,5 @@
 'use strict'
+const debug = require('debug')('apiParser');
 const api = {};
 
 // NUTRITION LIST API PARSER
@@ -10,7 +11,11 @@ function calcTotalNutritionalValue(dish) { // receive an array
     let fatLists = getFatList(dish);
     let carbohydrateLists = getCarbohydrateList(dish);
     let sugarLists = getSugarList(dish);
-
+    debug("calories", calorieLists)
+    debug("proteins", proteinLists)
+    debug("fatlist", fatLists)
+    debug("carbohydrates", carbohydrateLists)
+    debug("sugarlist", sugarLists)
     return {
         calories: {
             total: sumNutrientValues(calorieLists),
@@ -49,6 +54,7 @@ function getNutrientList(dish) {
 
 // Input nutrients array -> output sum of all values
 function sumNutrientValues(nutrientvalues) {
+    
   let sumVal = nutrientvalues
   .map(nutrient => nutrient.value)
   .reduce((prev, curr) => prev + curr);
@@ -73,7 +79,12 @@ function getNutrients(nutrientlist, nutrient_id) {
             }
         }
     }).filter((el) => !!el)
-
+    if(typeof n[0] !== 'object') {
+        return {
+            value: 0,
+            unit: 'g'
+        };
+    }
     return n[0];
 }
 
