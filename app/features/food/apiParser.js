@@ -5,37 +5,26 @@ const api = {};
 // NUTRITION LIST API PARSER
 // Main function: Input JSON object from API -> Outputs JSON object for client
 function calcTotalNutritionalValue(dish) { // receive an array
-    // Need each nutrient list
-    let calorieLists = getCalorieList(dish);
-    let proteinLists = getProteinList(dish);
-    let fatLists = getFatList(dish);
-    let carbohydrateLists = getCarbohydrateList(dish);
-    let sugarLists = getSugarList(dish);
-    debug("calories", calorieLists)
-    debug("proteins", proteinLists)
-    debug("fatlist", fatLists)
-    debug("carbohydrates", carbohydrateLists)
-    debug("sugarlist", sugarLists)
     return {
         calories: {
-            total: sumNutrientValues(calorieLists),
-            unit: calorieLists[0].unit
+            total: sumNutrientVal('calories', dish),
+            unit: 'kcal'
         },
         protein: {
-           total: sumNutrientValues(proteinLists),
-           unit: proteinLists[0].unit
+           total: sumNutrientVal('proteins', dish),
+           unit: 'g'
         },
         carbohydrates: {
-            total: sumNutrientValues(fatLists),
-            unit: carbohydrateLists[0].unit
+            total: sumNutrientVal('carbohydrates',dish),
+            unit: 'g'
         },
         fats: {
-            total: sumNutrientValues(carbohydrateLists),
-            unit: fatLists[0].unit
+            total: sumNutrientVal('fats',dish),
+            unit: 'g'
         },
         sugar: {
-            total: sumNutrientValues(sugarLists),
-            unit: sugarLists[0].unit
+            total: sumNutrientVal('sugars', dish),
+            unit: 'g'
         }
     }
 }
@@ -51,15 +40,23 @@ function getNutrientList(dish) {
 // option to look for certain nutrients
 // { nutrient_id: [], name: []}
 // ["208", "209", "210"]
+// sum calories
+function sumNutrientVal (key, foodArray) {
+    console.log(key, foodArray)
+    let sumVal = foodArray
+    .map( food =>  food[key].total)
+    .reduce((prev, curr) => prev + curr);
+    return Math.round(sumVal);
+}
 
 // Input nutrients array -> output sum of all values
-function sumNutrientValues(nutrientvalues) {
+// function sumNutrientValues(nutrientvalues) {
     
-  let sumVal = nutrientvalues
-  .map(nutrient => nutrient.value)
-  .reduce((prev, curr) => prev + curr);
-  return Math.round(sumVal);
-}
+//   let sumVal = nutrientvalues
+//   .map(nutrient => nutrient.value)
+//   .reduce((prev, curr) => prev + curr);
+//   return Math.round(sumVal);
+// }
 
 // Base nutrition function
 // Input Array of Nutrition List from API, specific nutrient_id e.g. "208"
@@ -74,14 +71,14 @@ function getNutrients(nutrientlist, nutrient_id) {
 
         if(nID === nutrient_id) {
             return {
-                value: Number(item.value),
+                total: Number(item.value),
                 unit: item.unit
             }
         }
     }).filter((el) => !!el)
     if(typeof n[0] !== 'object') {
         return {
-            value: 0,
+            total: 0,
             unit: 'g'
         };
     }
@@ -140,9 +137,13 @@ function getSugarList(fullDishList) {
     });
 }
 
-api.sumNutrientValues = sumNutrientValues; // testing purposes
+api.sumNutrientVal = sumNutrientVal; // testing purposes
 api.getCalorieList = getCalorieList; // testing purposes
-api.getCalories = getCalories; // testing purposes
+api.getCalories = getCalories;
+api.getProteins = getProtein;
+api.getCarbohydrates = getCarbohydrates;
+api.getFats = getFats;
+api.getSugars = getSugar;
 api.calcTotalNutritionalValue = calcTotalNutritionalValue;
 
 module.exports = api;

@@ -7,13 +7,12 @@ const express = require('express'),
   // mongoUtil = require('./app/utilities/mongoUtil'),
   fetchAll = require('./app/features/common/multipleRequest'),
   Food = require('./app/features/food/food'),
-  // dbNutrientMethods = require('./controllers/db.crud.nutrientHandlers'),
   dbFoodHandler = require('./controllers/db.foodHandlers'),
   request = require('request'),
+  transferNutrients = require('./app/features/food/apiResHandler').transferNutrients,
 
   // apiRoutes = require('./app/routes/api'),
   calcTotalNutritionalValue = require('./app/features/food/apiParser').calcTotalNutritionalValue;
-const portionSizeAdjustmentHandler = require('./app/features/food/portionSizeAdjustmentHandler').portionSizeAdjustmentHandler;
 
 
 const app = express();
@@ -67,23 +66,7 @@ app.get('/', (req, res) => {
 
 
 app.get('/main/isedible/:id/nutrition', (req, res) => {
-  // check if nbdno already exist in localDB
-  // option.type = "";
-  // var ndbObj = {
-  //     ndbno: req.params.id,
-  //     option: option
-  // }
-  // MongoClient.connect(url, (err, client) => {
-  //     var db = client.db(dbName);
 
-  //     dbNutrientMethods.findNutrients(db, ndbObj, function(result) {
-  //         console.log("results 2nd:", result)
-  //         client.close();
-  //     })
-  // })
-
-  // dbNutrientMethods.findNutrients()
-  // else call API
 
   var url = http.getAPIrequest(req.params.id, option)
 
@@ -120,7 +103,7 @@ app.post('/api/nutrition', (req, res) => {
     return food;
   })
 
-  debug(newDishArr)
+  debug('received requested dish')
 
   var nutritionOption = {
     ds: "Standard Reference",
@@ -135,9 +118,10 @@ app.post('/api/nutrition', (req, res) => {
  
   fetchAll(urlArr, (response) => {
     debug("API info successfully retrieved. Sending data to client...");
-    let updatedResponse = portionSizeAdjustmentHandler(response, dishArr);
-    debug("u_response", updatedResponse[0].nutrients)
-    let nutritionalData = calcTotalNutritionalValue(updatedResponse);
+    var updatedReqArr = transferNutrients(response, newDishArr)
+    debug('nutritionlist',updatedReqArr)
+    let nutritionalData = calcTotalNutritionalValue(updatedReqArr);
+    debug('final', nutritionalData)
     res.json(nutritionalData)
   })
 })
@@ -217,11 +201,7 @@ app.get('/api/bl/:query', (req, res) => {
 
 // All DB Source Route
 app.get('/api/any/:query', (req, res) => {
-  // Set CORS headers
-  // res.setHeader('Access-Control-Allow-Origin', '*');
-  // res.setHeader('Access-Control-Request-Method', '*');
-  // res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET');
-  // res.setHeader('Access-Control-Allow-Headers', '*');
+
   var srOption = {
 
     sort: "n",

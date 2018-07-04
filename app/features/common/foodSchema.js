@@ -1,6 +1,7 @@
 // ** Food Schema **
 module.exports = {
     food: {
+        error: null,
         ndbno: null,
         group: null,
         manu: null,
@@ -11,6 +12,11 @@ module.exports = {
         },
         upc: null,
         offset: null,
-        ds: null
+        ds: null,
+        calories: null,
+        proteins: null,
+        carbohydrates: null,
+        fats: null,
+        sugars: null,
     }
 }

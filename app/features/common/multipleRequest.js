@@ -1,5 +1,6 @@
 'use strict';
 var http = require('https');
+const debug = require('debug')('multipleRequest');
 
 // Fetch an array of api url request and returns an array of responses
 module.exports = function multipleRequests(urls, callback) {
@@ -28,7 +29,7 @@ module.exports = function multipleRequests(urls, callback) {
                             var obj = JSON.parse(result[i])
 
                             if(obj.error) {
-                                console.log("Error", obj.error)
+                                debug("Error", obj.error)
                                 // reject(new Error(obj.error.message))
                                 // return obj.error;
                             } 

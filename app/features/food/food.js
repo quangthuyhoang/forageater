@@ -1,23 +1,51 @@
-// food model: foodID/ndbno, group, manu, name, upc, offset, portionsize, ds
-
-// Food Class
-// {
-//   ndbno,
-//   group,
-//   manu,
-//   name,
-//   portionSize,
-//   *optional:
-//   upc,
-//   offset,
-//   ds
-// }
-
 const schemas = require('../common/foodSchema');
 const _ = require('lodash');
 
-function Food(foodObj) {
-  this.data = this.sanitize(foodObj);
+function Food(args) {
+  
+  this.data = this.sanitize(args);
+
+  this.ndbnoIsValid = function() {
+    return this.data.ndbno && /^\d+$/.test(this.data.ndbno);
+  }
+
+  this.portionSizeIsValid = function() {
+    return (
+      this.data.portionSize.value && 
+      this.data.portionSize.value > 0 &&
+      this.data.portionSize.unit 
+    )
+  }
+
+  this.nutritionIsValid = function() {
+    return (
+        this.data.calories.total > -1 && this.data.calories.unit &&
+        this.data.proteins.total > -1 && this.data.proteins.unit &&
+        this.data.carbohydrates.total > -1 && this.data.carbohydrates.unit &&
+        this.data.fats.total > -1 && this.data.fats.unit &&
+        this.data.sugars.total > -1 && this.data.sugars.unit
+    )
+  }
+
+  this.validationMessage = function() {
+    if (this.isValid()) {
+      return 'Food is all good';
+    } else if (!this.ndbnoIsValid()) {
+      return 'invalid NDBNO';
+    } else if (!this.portionSizeIsValid()) {
+      return 'invalid portionSize';
+    } else if (!this.nutritionIsValid()) {
+      return 'invalid nutrition';
+    }
+  }
+
+  this.isValid = function() {
+    return (
+      this.ndbnoIsValid() &&
+      this.portionSizeIsValid() &&
+      this.nutritionIsValid()
+    )
+  }
 }
 
 Food.prototype.sanitize = function (data) {
