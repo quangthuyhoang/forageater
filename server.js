@@ -2,17 +2,14 @@
 const express = require('express'),
   bodyparser = require('body-parser'),
   http = require('./app/external_api_handlers/server.httpRequest'),
-  // path = require('path'),
-  // MongoClient = require('mongodb').MongoClient,
-  // mongoUtil = require('./app/utilities/mongoUtil'),
   fetchAll = require('./app/features/common/multipleRequest'),
   Food = require('./app/features/food/food'),
   dbFoodHandler = require('./controllers/db.foodHandlers'),
   request = require('request'),
   transferNutrients = require('./app/features/food/apiResHandler').transferNutrients,
-
-  // apiRoutes = require('./app/routes/api'),
   calcTotalNutritionalValue = require('./app/features/food/apiParser').calcTotalNutritionalValue;
+
+
 
 
 const app = express();
@@ -40,23 +37,10 @@ app.use((req, res, next) => {
 
   // Set to true if you need the website to include cookies in the requests sent
   // to the API (e.g. in case you use sessions)
-
   // Pass to next layer of middleware
   next();
 });
 
-const adminRouter = require('./app/routes/adminRoutes')();
-
-app.use('/admin', adminRouter);
-const option = {
-  ndbAPIkey: process.env.ndbAPIkey
-}
-
-// const dbURL = 'mongodb://localhost:27017/mongo_prac';//process.env.localDB;
-// var dbURL = 'mongodb://localhost:27017';
-// const dbName = 'forageat';
-
-// Connect to DB
 
 
 // ROUTING
@@ -67,15 +51,16 @@ app.get('/', (req, res) => {
 
 app.get('/main/isedible/:id/nutrition', (req, res) => {
 
-
   var url = http.getAPIrequest(req.params.id, option)
 
   request.get({ url: url }, (err, response, body) => {
-    console.log("waiting on request... and", response.headers['x-ratelimit-remaining'] + '/' + response.headers['x-ratelimit-limit'])
+    console.log(
+      "waiting on request... and",
+     response.headers['x-ratelimit-remaining'] + 
+     '/' + response.headers['x-ratelimit-limit'])
     if (!err && response.statusCode === 200 && body) {
-      // console.log("nutrient api has responded")
-      // organize nutrient
-      var result = JSON.parse(response.body)
+     
+      let result = JSON.parse(response.body)
       //  console.log("result get",result)
       var product = result.foods[0].food
       var d = {
@@ -86,7 +71,7 @@ app.get('/main/isedible/:id/nutrition', (req, res) => {
       // check and save any unknown nutrients
       //  console.log("nutrients", product.nutrients)
       // send nutrient data and redirect to get request
-      //  console.log(d)
+
       res.render('show', { food: d })
       //  res.end(JSON.stringify({label: label, ing: ingredients, nutrients: nutrients}))
     }
@@ -104,16 +89,14 @@ app.post('/api/nutrition', (req, res) => {
   })
 
   debug('received requested dish')
-
-  var nutritionOption = {
+  var standardReference = {
     ds: "Standard Reference",
     sort: "n",
     max: 100,
     offset: 0,
     ndbAPIkey: process.env.ndbAPIkey
-  }
-
-  var urlArr = http.getManyNutrientURL(newDishArr, nutritionOption)
+};
+  var urlArr = http.getManyNutrientURL(newDishArr, standardReference)
   debug(urlArr)
  
   fetchAll(urlArr, (response) => {
@@ -129,16 +112,22 @@ app.post('/api/nutrition', (req, res) => {
 // Standard Reference DB
 app.get('/api/sr/:query', (req, res) => {
 
-
-  var srOption = {
+  var standardReference = {
     ds: "Standard Reference",
     sort: "n",
     max: 100,
     offset: 0,
     ndbAPIkey: process.env.ndbAPIkey
-  }
+};
 
-  request.get({ url: http.searchAPIrequest(req.params.query, srOption) + '&api_key=' + process.env.ndbAPIkey }, (err, response, body) => {
+  request.get({
+     url: http.searchAPIrequest(
+       req.params.query, 
+       standardReference
+      ) + 
+     '&api_key=' + 
+     process.env.ndbAPIkey 
+    }, (err, response, body) => {
     if (err) {
       console.log(err)
       res.send(err)
@@ -163,9 +152,7 @@ app.get('/api/sr/:query', (req, res) => {
 
 // Branded Food Product DB Route
 app.get('/api/bl/:query', (req, res) => {
-
-
-  var srOption = {
+  var srBFPOption = {
     ds: "Branded Food Products",
     sort: "n",
     max: 100,
@@ -173,9 +160,17 @@ app.get('/api/bl/:query', (req, res) => {
     ndbAPIkey: process.env.ndbAPIkey
   }
 
-  debug(http.searchAPIrequest(req.params.query, srOption))
+  debug(http.searchAPIrequest(req.params.query, srBFPOption))
 
-  request.get({ url: http.searchAPIrequest(req.params.query, srOption) + '&api_key=' + process.env.ndbAPIkey }, (err, response, body) => {
+  request.get({ 
+    
+    url: http.searchAPIrequest(
+      req.params.query, 
+      nutritionOption.brandedFoodProducts
+    ) +
+     '&api_key=' + process.env.ndbAPIkey 
+    }, 
+    (err, response, body) => {
     if (err) {
       console.log(err)
       res.send(err)
@@ -203,7 +198,6 @@ app.get('/api/bl/:query', (req, res) => {
 app.get('/api/any/:query', (req, res) => {
 
   var srOption = {
-
     sort: "n",
     max: 100,
     offset: 0,
@@ -212,20 +206,20 @@ app.get('/api/any/:query', (req, res) => {
 
   debug(http.searchAPIrequest(req.params.query, srOption))
 
-  request.get({ url: http.searchAPIrequest(req.params.query, srOption) + '&api_key=' + process.env.ndbAPIkey }, (err, response, body) => {
+  request.get(
+    {
+     url: http.searchAPIrequest(req.params.query, srOption) + '&api_key=' + process.env.ndbAPIkey 
+    }, (err, response, body) => {
     if (err) {
-      console.log(err)
       res.send(err)
     }
 
     if (response.statusCode === 200 && body.errors) {
-      console.log(body.errors.error)
       res.json({ errors: body.errors.error })
     }
 
     if (!err && response.statusCode === 200) {
-
-      var data = JSON.parse(body)
+      let data = JSON.parse(body)
       res.json(data)
     }
   })
@@ -241,12 +235,16 @@ app.get('/api/ndblist/:id', (req, res) => {
   var url = http.getAPIrequest(req.params.id, option)
 
   request.get({ url: url }, (err, response, body) => {
-    console.log("waiting on request... and", response.headers['x-ratelimit-remaining'] + '/' + response.headers['x-ratelimit-limit'])
+    console.log(
+    "waiting on request... and",
+     response.headers['x-ratelimit-remaining'] + '/' + 
+     response.headers['x-ratelimit-limit']
+    )
     if (err) {
       console.log(err)
     }
 
-    var result = JSON.parse(body)
+    let result = JSON.parse(body)
 
     if (response.statusCode === 200 & result.notfound > 0) {
       console.log("errors", result)
@@ -259,53 +257,12 @@ app.get('/api/ndblist/:id', (req, res) => {
 })
 
 
-// *** might not need this any more **
-app.get('/api/search/:query', (req, res) => {
-  console.log("req", req.query, req.params, req.body)
-  var foodGroup = req.params.query;
-
-  // const url = http.requestNDB(foodGroup);
-  option.type = 'query';
-  option.max = 15;
-
-  request.get({ url: http.getAPIrequest(foodGroup, option) }, (err, response, body) => {
-    if (err) {
-      console.log(err)
-    }
-    if (response.statusCode === 200 && body.errors) {
-      res.json({ errors: body.errors.error })
-    }
-    if (!err && response.statusCode === 200) {
-      var data = JSON.parse(body)
-
-      // var ndbList = data.list.item.map((brand) => {
-      //     // separate name from UPC code
-      //     var name = brand.name.split(", UPC:")[0]
-      //     var upc = brand.name.split(", UPC:")[1]
-      //     return { name: name, ndbno: brand.ndbno, upc: upc }
-      // })
-      res.json(data)
-    }
-  })
-})
-
-
-
-
-
 var port = process.env.PORT || 3000;
 app.listen(port, function () {
   debug(`Now running on port: ${port}`)
 });
-// const a = [ 'https://api.nal.usda.gov/ndb/V2/reports?ndbno=45044107&type=f&format=json&api_key=amDzDlse9UvPbte7K2uMdlALSD0JKXByOPuhp5eO',
-// 'https://api.nal.usda.gov/ndb/V2/reports?ndbno=45018288&type=f&format=json&api_key=amDzDlse9UvPbte7K2uMdlALSD0JKXByOPuhp5eO',
-// 'https://api.nal.usda.gov/ndb/V2/reports?ndbno=45135801&type=f&format=json&api_key=amDzDlse9UvPbte7K2uMdlALSD0JKXByOPuhp5eO',
-// 'https://api.nal.usda.gov/ndb/V2/reports?ndbno=45285177&type=f&format=json&api_key=amDzDlse9UvPbte7K2uMdlALSD0JKXByOPuhp5eO',
-// 'https://api.nal.usda.gov/ndb/V2/reports?ndbno=45055648&type=f&format=json&api_key=amDzDlse9UvPbte7K2uMdlALSD0JKXByOPuhp5eO',
-// 'https://api.nal.usda.gov/ndb/V2/reports?ndbno=45203301&type=f&format=json&api_key=amDzDlse9UvPbte7K2uMdlALSD0JKXByOPuhp5eO',
-// 'https://api.nal.usda.gov/ndb/V2/reports?ndbno=45199712&type=f&format=json&api_key=amDzDlse9UvPbte7K2uMdlALSD0JKXByOPuhp5eO' ]
 
-// fetchAll(a)
+
 function logDataSearch(db, arr) {
   let promises = [];
 
